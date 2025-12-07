@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>见筑·可视化系统 - 登录</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: linear-gradient(135deg, #e8dfd0 0%, #f5f0e8 100%);
+            min-height: 100vh;
+        }
+        
+        .quote-mark {
+            font-size: 80px;
+            color: #d4c4a8;
+            line-height: 0.5;
+            font-family: Georgia, serif;
+        }
+        
+        .quote-text {
+            font-size: 32px;
+            line-height: 1.8;
+            color: #4a4a4a;
+            margin: 20px 0;
+        }
+        
+        .quote-author {
+            color: #999;
+            font-size: 16px;
+            margin-top: 30px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            background: #f5f5f7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .input-field:focus {
+            background: #ebebed;
+            box-shadow: 0 0 0 3px rgba(160, 130, 109, 0.1);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: #a0826d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-login:hover {
+            background: #8b6f5c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(160, 130, 109, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .link-text {
+            color: #a0826d;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .link-text:hover {
+            color: #8b6f5c;
+            text-decoration: underline;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: #a0826d;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-8">
+    <div class="container mx-auto max-w-6xl">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- 左侧引言区 -->
+            <div class="text-left fade-in">
+                <!-- Logo -->
+                <div class="flex items-center gap-4 mb-16">
+                    <div class="logo-icon">见筑</div>
+                    <h1 class="text-2xl text-gray-700 font-medium">见筑·可视化系统</h1>
+                </div>
+                
+                <!-- 引言 -->
+                <div class="quote-mark">"</div>
+                <div class="quote-text">
+                    映水曲、翠瓦朱檐，<br>
+                   垂杨里、乍见津亭。
+                </div>
+                <div class="quote-author">- 周邦彦《绮寮怨》</div>
+                
+                <!-- 页脚 -->
+                <div class="mt-32 text-gray-400 text-sm">
+                    3453360843@qq.com | 见筑可视化系统 2025.12.7
+                </div>
+            </div>
+            
+            <!-- 右侧登录/注册区 -->
+            <div class="login-card fade-in">
+                <!-- 登录表单 -->
+                <div id="loginForm" class="form-container active">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-800">登录见筑可视化系统</h2>
+                    <p class="text-gray-500 mb-8">
+                        还没有账户？<span class="link-text" onclick="showRegister()">立即注册</span>
+                    </p>
+                    
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-5">
+                            <input type="text" id="loginUsername" class="input-field" placeholder="账号" required>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <input type="password" id="loginPassword" class="input-field" placeholder="密码" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-login">登录</button>
+                    </form>
+                </div>
+                
+                <!-- 注册表单 -->
+                <div id="registerForm" class="form-container">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-800">注册见筑可视化系统</h2>
+                    <p class="text-gray-500 mb-8">
+                        已有账户？<span class="link-text" onclick="showLogin()">立即登录</span>
+                    </p>
+                    
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-5">
+                            <input type="text" id="registerUsername" class="input-field" placeholder="账号" required minlength="3">
+                        </div>
+                        
+                        <div class="mb-5">
+                            <input type="password" id="registerPassword" class="input-field" placeholder="密码" required minlength="6">
+                        </div>
+                        
+                        <div class="mb-8">
+                            <input type="password" id="confirmPassword" class="input-field" placeholder="确认密码" required minlength="6">
+                        </div>
+                        
+                        <button type="submit" class="btn-login">注册</button>
+                    </form>
+                </div>
+                
+                <!-- 成功提示 -->
+                <div id="successMessage" class="success-message">
+                    <div class="text-6xl mb-4">✓</div>
+                    <h3 class="text-2xl font-bold mb-2 text-gray-800" id="successTitle">登录成功</h3>
+                    <p class="text-gray-500 mb-6" id="successText">欢迎回来！</p>
+                    <button onclick="redirectToHome()" class="btn-login">进入主页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的内存存储（实际应用中应使用后端数据库）
+        const users = {};
+        
+        function showLogin() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('successMessage').classList.remove('active');
+        }
+        
+        function showRegister() {
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('successMessage').classList.remove('active');
+        }
+        
+        function showSuccess(title, text) {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('successMessage').classList.add('active');
+            document.getElementById('successTitle').textContent = title;
+            document.getElementById('successText').textContent = text;
+        }
+        
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // 检查用户是否存在
+            if (users[username] && users[username] === password) {
+                showSuccess('登录成功', `欢迎回来，${username}！`);
+            } else {
+                alert('账号或密码错误，请重试');
+            }
+        }
+        
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 验证密码
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            
+            // 检查用户名是否已存在
+            if (users[username]) {
+                alert('该账号已被注册，请使用其他账号');
+                return;
+            }
+            
+            // 注册新用户
+            users[username] = password;
+            showSuccess('注册成功', `欢迎加入，${username}！`);
+        }
+        
+        function redirectToHome() {
+            // 进入功能页
+            window.location.href = '功能面.html';
+        }
+    </script>
+</body>
+</html>

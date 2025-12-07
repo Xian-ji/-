@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>观筑 - 古建筑色彩可视化系统</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Noto Serif SC", serif;
+        background-color: #f9f6f0;
+        color: #333;
+        padding-top: 80px;
+      }
+
+      /* 导航栏样式 */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(249, 246, 240, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #e5e5e5;
+        z-index: 1000;
+        padding: 20px 0;
+      }
+
+      .navbar-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar-logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #a0826d;
+        letter-spacing: 0.1em;
+      }
+
+      .navbar-menu {
+        display: flex;
+        gap: 40px;
+        align-items: center;
+      }
+
+      .navbar-link {
+        color: #666;
+        text-decoration: none;
+        font-size: 16px;
+        transition: color 0.3s ease;
+        cursor: pointer;
+      }
+
+      .navbar-link:hover {
+        color: #a0826d;
+      }
+
+      .navbar-button {
+        padding: 10px 24px;
+        border: 2px solid #a0826d;
+        border-radius: 4px;
+        color: #a0826d;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .navbar-button:hover {
+        background-color: #a0826d;
+        color: white;
+      }
+
+      .vertical-text {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 0.5em;
+        font-weight: 800;
+        color: #8b4513;
+      }
+
+      .btn-primary {
+        background-color: #a0826d;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        background-color: #8b6f5c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(160, 130, 109, 0.3);
+      }
+
+      .section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e5e5;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        font-size: 48px;
+        color: #a0826d;
+        margin-bottom: 20px;
+      }
+
+      .divider {
+        height: 1px;
+        background: linear-gradient(
+          to right,
+          transparent,
+          #a0826d,
+          transparent
+        );
+        margin: 40px 0;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+      }
+
+      .delay-1 {
+        animation-delay: 0.1s;
+      }
+      .delay-2 {
+        animation-delay: 0.2s;
+      }
+      .delay-3 {
+        animation-delay: 0.3s;
+      }
+      .delay-4 {
+        animation-delay: 0.4s;
+      }
+
+      @media (max-width: 768px) {
+        .vertical-text {
+          writing-mode: horizontal-tb;
+          letter-spacing: 0.2em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+      <div class="navbar-content">
+        <div class="navbar-logo">'见筑'古建筑可视化系统</div>
+        <div class="navbar-menu">
+          <a class="navbar-link" onclick="scrollToSection('model-list')"
+            >平台使命</a
+          >
+          <a class="navbar-link" onclick="scrollToSection('sub-model')"
+            >核心能力</a
+          >
+          <a class="navbar-link" onclick="scrollToSection('training-data')"
+            >用法与应用</a
+          >
+          <a class="navbar-link" onclick="scrollToSection('learning-materials')"
+            >核心技术</a
+          >
+          <button
+            class="navbar-button"
+            onclick="window.open('https://github.com/Xian-ji/-', '_blank')"
+          >
+            查看源码
+          </button>
+        </div>
+      </div>
+    </nav>
+    <!-- Hero Section -->
+    <section
+      class="section text-center"
+      style="padding-top: 100px; padding-bottom: 80px"
+    >
+      <div class="fade-in">
+        <h1 class="vertical-text text-7xl mb-8" style="display: inline-block">
+          见筑
+        </h1>
+      </div>
+      <p class="text-3xl text-gray-700 mb-6 fade-in delay-1">
+        传承匠心，筑观古国
+      </p>
+      <div class="flex justify-center gap-4 mt-8 fade-in delay-2">
+        <button
+          class="btn-primary"
+          onclick="window.open('数据展示.html', '_blank')"
+        >
+          <i class="fas fa-chart-bar mr-2"></i>数据展示
+        </button>
+        <button
+          class="btn-primary"
+          onclick="window.open('登录界面.html', '_blank')"
+        >
+          <i class="fas fa-vr-cardboard mr-2"></i>在线体验
+        </button>
+        <button
+          class="btn-primary"
+          onclick="window.open('咨询与建议.html', '_blank')"
+        >
+          <i class="fas fa-comment-dots mr-2"></i>咨询与建议
+        </button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- System Introduction -->
+    <section id="model-list" class="section fade-in delay-3">
+      <h2 class="text-4xl font-bold text-center mb-6 text-gray-800">
+        关于平台的使命
+      </h2>
+      <p
+        class="text-lg text-gray-700 leading-relaxed text-center max-w-3xl mx-auto"
+      >
+        该系统整合古建筑色彩数据资源，提供地域化色彩提取与可视化服务。用户可通过省份查询获取古建筑色彩分析报告、色号列表及相关图表，助力古建筑研究与保护工作。
+      </p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Core Features -->
+    <section id="sub-model" class="section">
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">
+        核心能力
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="feature-card fade-in delay-1">
+          <div class="feature-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">引</h3>
+          <p class="text-gray-600 mb-2">古建筑导引</p>
+          <p class="text-sm text-gray-500">
+            按地域、朝代、建筑类型精准检索古建筑信息
+          </p>
+        </div>
+
+        <div class="feature-card fade-in delay-2">
+          <div class="feature-icon">
+            <i class="fas fa-palette"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">取</h3>
+          <p class="text-gray-600 mb-2">色彩采集</p>
+          <p class="text-sm text-gray-500">
+            python程序识别建筑色彩，提取主色调与配色方案
+          </p>
+        </div>
+
+        <div class="feature-card fade-in delay-3">
+          <div class="feature-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">档</h3>
+          <p class="text-gray-600 mb-2">数据存档管理</p>
+          <p class="text-sm text-gray-500">建立完整的建筑色彩数据档案库</p>
+        </div>
+
+        <div class="feature-card fade-in delay-1">
+          <div class="feature-icon">
+            <i class="fas fa-paint-brush"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">译</h3>
+          <p class="text-gray-600 mb-2">色彩标准转译</p>
+          <p class="text-sm text-gray-500">
+            支持RGB、CMYK、Pantone等多种色彩体系转换
+          </p>
+        </div>
+
+        <div class="feature-card fade-in delay-2">
+          <div class="feature-icon">
+            <i class="fas fa-book"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">读</h3>
+          <p class="text-gray-600 mb-2">文化内涵解读</p>
+          <p class="text-sm text-gray-500">深度解析色彩背后的历史与文化意义</p>
+        </div>
+
+        <div class="feature-card fade-in delay-3">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">析</h3>
+          <p class="text-gray-600 mb-2">数据可视化分析</p>
+          <p class="text-sm text-gray-500">生成色彩分布图表、趋势分析报告</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Usage Scenarios -->
+    <section id="training-data" class="section">
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">
+        用法与应用
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center fade-in delay-1">
+          <div class="feature-icon">
+            <i class="fas fa-university"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">科研</h3>
+          <p class="text-gray-600">为学术研究提供精准的色彩数据支持</p>
+        </div>
+
+        <div class="text-center fade-in delay-2">
+          <div class="feature-icon">
+            <i class="fas fa-hammer"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">修复</h3>
+          <p class="text-gray-600">指导古建筑修复的色彩还原工作</p>
+        </div>
+
+        <div class="text-center fade-in delay-3">
+          <div class="feature-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-gray-800">探讨</h3>
+          <p class="text-gray-600">供建筑、设计专业的相关探讨交流参考</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Tech Stack -->
+    <section
+      id="learning-materials"
+      class="section bg-white"
+      style="padding: 60px 20px"
+    >
+      <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">
+        核心技术
+      </h2>
+      <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 border-l-4 border-amber-700">
+            <h3 class="text-xl font-bold mb-3">大模型接入</h3>
+            <p class="text-gray-600">
+              通过API调用deepseek大模型进行古建筑知识问答
+            </p>
+          </div>
+          <div class="p-6 border-l-4 border-amber-700">
+            <h3 class="text-xl font-bold mb-3">K-Means聚类算法</h3>
+            <p class="text-gray-600">智能提取图像主色调，实现精准色彩分析</p>
+          </div>
+          <div class="p-6 border-l-4 border-amber-700">
+            <h3 class="text-xl font-bold mb-3">数据可视化技术</h3>
+            <p class="text-gray-600">
+              使用Matplotlib、Echarts等工具生成专业图表
+            </p>
+          </div>
+          <div class="p-6 border-l-4 border-amber-700">
+            <h3 class="text-xl font-bold mb-3">Web前端开发</h3>
+            <p class="text-gray-600">响应式设计，支持多设备访问</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 text-center text-gray-500 bg-gray-100">
+      <p class="mb-2">面向对象结课作业</p>
+      <p>lhy666</p>
+    </footer>
+
+    <script>
+      // 平滑滚动到指定部分
+      function scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const offset = 100; // 导航栏高度补偿
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const observerOptions = {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.1,
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = "1";
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll(".fade-in").forEach((el) => {
+          observer.observe(el);
+        });
+      });
+    </script>
+  </body>
+</html>

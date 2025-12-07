@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>见筑·智能对话</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Noto Serif SC", serif;
+        background-color: #fafafa;
+        color: #333;
+      }
+
+      .sidebar {
+        background: #f5f5f5;
+        border-right: 1px solid #e0e0e0;
+      }
+
+      .chat-button {
+        background-color: #a0826d;
+        color: white;
+        transition: all 0.3s ease;
+      }
+
+      .chat-button:hover {
+        background-color: #8b6f5c;
+      }
+
+      .new-chat-button {
+        background-color: #d4b896;
+        color: #4a4a4a;
+      }
+
+      .message-user {
+        background-color: white;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .message-bot {
+        background-color: #fafafa;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .input-container {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 28px;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+
+      .input-field {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        background: transparent;
+        padding: 8px 0;
+        color: #666;
+      }
+
+      .input-field::placeholder {
+        color: #aaa;
+      }
+
+      .send-button {
+        background-color: #b89968;
+        color: white;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        flex-shrink: 0;
+      }
+
+      .send-button:hover {
+        background-color: #a0826d;
+        transform: scale(1.05);
+      }
+
+      .logo-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .logo-icon::before {
+        content: "见筑";
+        writing-mode: vertical-rl;
+        letter-spacing: 2px;
+      }
+
+      .logo-icon-small {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .logo-icon-small::before {
+        content: "观筑";
+        writing-mode: vertical-rl;
+        letter-spacing: 1px;
+      }
+
+      .quick-question {
+        background: white;
+        border: 1px solid #e8e8e8;
+        border-radius: 16px;
+        padding: 20px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .quick-question:hover {
+        border-color: #d0d0d0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+
+      .data-button {
+        background-color: #a0826d;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .data-button:hover {
+        background-color: #8b6f5c;
+      }
+
+      .sub-buttons {
+        display: none;
+        margin-top: 8px;
+        padding-left: 16px;
+        gap: 8px;
+        flex-direction: column;
+      }
+
+      .sub-buttons.show {
+        display: flex;
+      }
+
+      .sub-button {
+        background-color: #c9b899;
+        color: #4a4a4a;
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sub-button:hover {
+        background-color: #b8a688;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        background-color: #a0826d;
+        color: white;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+      }
+
+      .notification.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 48px;
+        height: 24px;
+        background-color: #e5e5e5;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-switch.active {
+        background-color: #a0826d;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-switch.active .toggle-slider {
+        transform: translateX(24px);
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="flex h-screen overflow-hidden">
+    <!-- 左侧边栏 -->
+    <div class="sidebar w-64 flex flex-col p-4">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="logo-icon-small"></div>
+        <h1 class="text-xl font-bold text-gray-800">见筑·可视化系统</h1>
+      </div>
+
+      <!-- 新对话按钮 -->
+      <button
+        class="new-chat-button rounded-lg py-3 px-4 mb-4 flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+        onclick="startNewChat()"
+      >
+        <i class="fas fa-edit"></i>
+        新的对话
+      </button>
+
+     
+
+ 
+      <!-- 退出登录 -->
+      <div class="border-t border-gray-300 pt-4 mt-4">
+        <div class="flex items-center justify-between px-2 mb-3">
+          <span class="text-sm text-gray-600">深度思考</span>
+          <div class="toggle-switch" onclick="toggleDeepThink(this)">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <button
+          class="flex items-center gap-2 text-gray-700 px-2 hover:text-gray-900"
+          onclick="logout()"
+        >
+          <i class="fas fa-sign-out-alt"></i>
+          <span>退出登录</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col">
+      <!-- 对话区域 -->
+      <div id="chat-area" class="flex-1 overflow-y-auto p-8">
+        <!-- 欢迎界面 -->
+        <div
+          id="welcome-screen"
+          class="flex flex-col items-center justify-center h-full max-w-4xl mx-auto"
+        >
+          <div class="logo-icon mb-8"></div>
+          <h2 class="text-3xl font-bold mb-12 text-gray-900">
+            今天想了解关于中国古建筑的哪方面的知识?
+          </h2>
+        </div>
+
+        <!-- 对话历史 -->
+        <div id="chat-history" class="hidden max-w-4xl mx-auto space-y-6">
+          <div class="message-bot">
+            <p class="text-gray-800">
+              您好!我是观筑古建筑地域数据查询助手。请输入省份名称,例如"北京"、"江苏",我将为您检索相关数据文件。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 输入区域 -->
+      <div class="p-6 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto">
+          <form id="chat-form" onsubmit="handleSubmit(event)">
+            <div class="input-container">
+              <input
+                type="text"
+                id="user-input"
+                class="input-field"
+                placeholder="请输入省份名称,例如'北京'、'江苏'"
+                autocomplete="off"
+              />
+              <button type="submit" class="send-button">
+                <i class="fas fa-arrow-up"></i>
+              </button>
+            </div>
+          </form>
+          <p class="text-center text-xs text-gray-400 mt-3">
+            内容基于AI智能生成
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+      // 所有中国省级行政区列表
+      const provinces = [
+        "北京",
+        "天津",
+        "河北",
+        "山西",
+        "内蒙古",
+        "辽宁",
+        "吉林",
+        "黑龙江",
+        "上海",
+        "江苏",
+        "浙江",
+        "安徽",
+        "福建",
+        "江西",
+        "山东",
+        "河南",
+        "湖北",
+        "湖南",
+        "广东",
+        "广西",
+        "海南",
+        "重庆",
+        "四川",
+        "贵州",
+        "云南",
+        "西藏",
+        "陕西",
+        "甘肃",
+        "青海",
+        "宁夏",
+        "新疆",
+        "香港",
+        "澳门",
+        "台湾",
+      ];
+
+      // 模拟文件系统数据
+      const mockFileSystem = {
+        山西: {
+          "山西图表.jpg": { type: "图表", path: "山西/山西图表.jpg" },
+          "山西主色板.jpg": { type: "图表", path: "山西/山西主色板.jpg" },
+          "山西色彩提取.html": {
+            type: "色号列表",
+            path: "山西/山西色彩提取.html",
+          },
+          "山西色彩提取.csv": {
+            type: "Excel数据",
+            path: "山西/山西色彩提取.csv",
+          },
+        },
+        北京: {
+          "北京图表.jpg": { type: "图表", path: "北京/北京图表.jpg" },
+          "北京主色板.jpg": { type: "图表", path: "北京/北京主色板.jpg" },
+          "北京色彩提取.html": {
+            type: "色号列表",
+            path: "北京/北京色彩提取.html",
+          },
+          "北京色彩提取.csv": {
+            type: "Excel数据",
+            path: "北京/北京色彩提取.csv",
+          },
+        },
+        江苏: {
+          "江苏图表.jpg": { type: "图表", path: "江苏/江苏图表.jpg" },
+          "江苏主色板.jpg": { type: "图表", path: "江苏/江苏主色板.jpg" },
+          "江苏色彩提取.html": {
+            type: "色号列表",
+            path: "江苏/江苏色彩提取.html",
+          },
+          "江苏色彩提取.csv": {
+            type: "Excel数据",
+            path: "江苏/江苏色彩提取.csv",
+          },
+        },
+        浙江: {
+          "浙江图表.jpg": { type: "图表", path: "浙江/浙江图表.jpg" },
+          "浙江色彩提取.html": {
+            type: "色号列表",
+            path: "浙江/浙江色彩提取.html",
+          },
+          "浙江色彩提取.csv": {
+            type: "Excel数据",
+            path: "浙江/浙江色彩提取.csv",
+          },
+        },
+        陕西: {
+          "陕西主色板.jpg": { type: "图表", path: "陕西/陕西主色板.jpg" },
+          "陕西色彩提取.html": {
+            type: "色号列表",
+            path: "陕西/陕西色彩提取.html",
+          },
+        },
+      };
+
+      const chatHistory = document.getElementById("chat-history");
+      const welcomeScreen = document.getElementById("welcome-screen");
+      const userInput = document.getElementById("user-input");
+      const notification = document.getElementById("notification");
+
+      function showNotification(message) {
+        notification.textContent = message;
+        notification.classList.add("show");
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      function validateInput(input) {
+        for (const province of provinces) {
+          if (input.includes(province)) {
+            return province;
+          }
+        }
+        return null;
+      }
+
+      function addUserMessage(message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message-user mb-6";
+        messageDiv.innerHTML = `<p class="text-gray-800">${message}</p>`;
+        chatHistory.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function addBotMessage(html) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message-bot mb-6";
+        messageDiv.innerHTML = html;
+        chatHistory.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function showTypingIndicator() {
+        const typingDiv = document.createElement("div");
+        typingDiv.id = "typing-indicator";
+        typingDiv.className = "message-bot mb-6";
+        typingDiv.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-circle-notch fa-spin text-gray-600"></i>
+                    <p class="text-gray-600">正在检索数据...</p>
+                </div>
+            `;
+        chatHistory.appendChild(typingDiv);
+        scrollToBottom();
+      }
+
+      function removeTypingIndicator() {
+        const indicator = document.getElementById("typing-indicator");
+        if (indicator) indicator.remove();
+      }
+
+      function searchFiles(province) {
+        if (!mockFileSystem[province]) {
+          return { found: false, files: {} };
+        }
+
+        const files = mockFileSystem[province];
+        const organized = {
+          charts: [],
+          colorList: null,
+          excelData: null,
+        };
+
+        Object.keys(files).forEach((fileName) => {
+          const file = files[fileName];
+          if (fileName.endsWith(".jpg")) {
+            organized.charts.push({ name: fileName, path: file.path });
+          } else if (fileName.endsWith(".html")) {
+            organized.colorList = { name: fileName, path: file.path };
+          } else if (fileName.endsWith(".csv")) {
+            organized.excelData = { name: fileName, path: file.path };
+          }
+        });
+
+        return { found: true, files: organized };
+      }
+
+      function generateBotResponse(province) {
+        const result = searchFiles(province);
+
+        if (!result.found) {
+          return `<p class="text-red-600 mb-2"><i class="fas fa-exclamation-circle mr-2"></i>未找到「${province}」相关文件</p>
+                        <p class="text-sm text-gray-600">请确保文件存在于正确的相对路径下</p>`;
+        }
+
+        let html = `<p class="text-green-600 font-semibold mb-4"><i class="fas fa-check-circle mr-2"></i>${province}古建筑数据检索结果</p>
+                       <p class="text-gray-700 mb-4">找到以下相关文件,请选择您想要查看的数据类型:</p>
+                       <div class="space-y-3">`;
+
+        if (result.files.charts && result.files.charts.length > 0) {
+          html += `
+                    <div>
+                        <button class="data-button" onclick="toggleCharts('${province}', this)">
+                            <i class="fas fa-chart-pie"></i>
+                            可视化图表 (${result.files.charts.length}个文件)
+                            <i class="fas fa-chevron-down ml-auto transition-transform"></i>
+                        </button>
+                        <div class="sub-buttons" id="charts-${province}">
+                            ${generateChartButtons(result.files.charts)}
+                        </div>
+                    </div>`;
+        }
+
+        if (result.files.colorList) {
+          html += `
+                    <button class="data-button" onclick="openFile('${result.files.colorList.path}')">
+                        <i class="fas fa-palette"></i>
+                        色号列表
+                    </button>`;
+        }
+
+        if (result.files.excelData) {
+          html += `
+                    <button class="data-button" onclick="downloadFile('${result.files.excelData.path}')">
+                        <i class="fas fa-file-excel"></i>
+                        Excel数据
+                    </button>`;
+        }
+
+        html += "</div>";
+        return html;
+      }
+
+      function generateChartButtons(charts) {
+        let html = "";
+        charts.forEach((chart) => {
+          const icon = chart.name.includes("主色板")
+            ? "fa-palette"
+            : "fa-chart-bar";
+          const label = chart.name.includes("主色板")
+            ? "查看主色板"
+            : "查看图表";
+          html += `
+                    <button class="sub-button" onclick="openFile('${chart.path}')">
+                        <i class="fas ${icon}"></i>
+                        ${label}
+                    </button>`;
+        });
+        return html;
+      }
+
+      function toggleCharts(province, button) {
+        const subButtons = document.getElementById(`charts-${province}`);
+        const icon = button.querySelector(".fa-chevron-down");
+
+        if (subButtons.classList.contains("show")) {
+          subButtons.classList.remove("show");
+          icon.style.transform = "rotate(0deg)";
+        } else {
+          subButtons.classList.add("show");
+          icon.style.transform = "rotate(180deg)";
+        }
+      }
+
+      function openFile(path) {
+        window.open(path, "_blank");
+        showNotification("正在打开文件...");
+      }
+
+      function downloadFile(path) {
+        const link = document.createElement("a");
+        link.href = path;
+        link.download = path.split("/").pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification("文件下载已开始");
+      }
+
+      function handleSubmit(event) {
+        event.preventDefault();
+
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        const province = validateInput(message);
+        if (!province) {
+          showNotification(`未找到「${message}」相关数据,请尝试其他省份`);
+          return;
+        }
+
+        welcomeScreen.classList.add("hidden");
+        chatHistory.classList.remove("hidden");
+
+        addUserMessage(message);
+        userInput.value = "";
+
+        showTypingIndicator();
+
+        setTimeout(() => {
+          removeTypingIndicator();
+          const response = generateBotResponse(province);
+          addBotMessage(response);
+        }, 1500);
+      }
+
+      function askQuestion(question) {
+        userInput.value = question;
+        handleSubmit(new Event("submit"));
+      }
+
+      function startNewChat() {
+        chatHistory.innerHTML = `
+                <div class="message-bot">
+                    <p class="text-gray-800">您好!我是观筑古建筑地域数据查询助手。请输入省份名称,例如"北京"、"江苏",我将为您检索相关数据文件。</p>
+                </div>`;
+        welcomeScreen.classList.remove("hidden");
+        chatHistory.classList.add("hidden");
+      }
+
+      function toggleDeepThink(toggle) {
+        toggle.classList.toggle("active");
+      }
+
+      function logout() {
+        if (confirm("确定要退出登录吗?")) {
+          window.location.href = "登录界面.html";
+        }
+      }
+
+      function scrollToBottom() {
+        const chatArea = document.getElementById("chat-area");
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
