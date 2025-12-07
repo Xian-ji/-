@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>古建筑地域数据查询 - 文化传承版</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <!-- 引入中文字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Ma+Shan+Zheng&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              vermilion: "#c73e1d",
+              vermilionLight: "#e74c3c",
+              ultramarine: "#3a5fcd",
+              riceWhite: "#faf8f3",
+              ink: "#2c2c2c",
+              gold: "#d4af37",
+              jade: "#20b2aa",
+            },
+            fontFamily: {
+              serif: ["Noto Serif SC", "STSong", "宋体", "serif"],
+              kai: ["KaiTi", "STKaiti", "楷体", "serif"],
+              art: ["Ma Shan Zheng", "cursive"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Serif SC", "STSong", "宋体", serif;
+        background: linear-gradient(
+          135deg,
+          #faf8f3 0%,
+          #f5f1e8 50%,
+          #faf8f3 100%
+        );
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* 宣纸纹理背景 */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(44, 44, 44, 0.01) 2px,
+            rgba(44, 44, 44, 0.01) 4px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(44, 44, 44, 0.01) 2px,
+            rgba(44, 44, 44, 0.01) 4px
+          );
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+      }
+
+      /* 回纹装饰边框 */
+      .meander-border {
+        border-image: repeating-linear-gradient(
+            90deg,
+            #d4af37,
+            #d4af37 10px,
+            transparent 10px,
+            transparent 15px,
+            #d4af37 15px,
+            #d4af37 20px,
+            transparent 20px,
+            transparent 25px
+          )
+          2;
+        border-width: 3px 0;
+        border-style: solid;
+      }
+
+      /* 飞檐效果的顶部 */
+      header {
+        position: relative;
+        background: linear-gradient(180deg, #2c2c2c 0%, #3a3a3a 100%);
+        clip-path: polygon(
+          0 0,
+          5% 0,
+          5% 15%,
+          10% 0,
+          15% 0,
+          15% 20%,
+          20% 0,
+          25% 0,
+          25% 15%,
+          30% 0,
+          35% 0,
+          35% 20%,
+          40% 0,
+          45% 0,
+          45% 15%,
+          50% 0,
+          55% 0,
+          55% 20%,
+          60% 0,
+          65% 0,
+          65% 15%,
+          70% 0,
+          75% 0,
+          75% 20%,
+          80% 0,
+          85% 0,
+          85% 15%,
+          90% 0,
+          95% 0,
+          95% 20%,
+          100% 0,
+          100% 100%,
+          0 100%
+        );
+        padding-bottom: 20px;
+        box-shadow: 0 8px 20px rgba(199, 62, 29, 0.15);
+      }
+
+      /* 主标题 - 使用书法字体 */
+      .main-title {
+        font-family: "Ma Shan Zheng", "KaiTi", "楷体", cursive;
+        font-size: 2.5rem;
+        background: linear-gradient(
+          135deg,
+          #d4af37 0%,
+          #ffd700 50%,
+          #d4af37 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 2px 2px 4px rgba(212, 175, 55, 0.3);
+        letter-spacing: 0.3rem;
+        position: relative;
+        animation: titleGlow 3s ease-in-out infinite;
+      }
+
+      @keyframes titleGlow {
+        0%,
+        100% {
+          filter: brightness(1);
+        }
+        50% {
+          filter: brightness(1.2);
+        }
+      }
+
+      /* 斗拱装饰 */
+      .dougong-corner {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #d4af37, #c9a961);
+        clip-path: polygon(
+          50% 0%,
+          100% 25%,
+          90% 50%,
+          100% 75%,
+          50% 100%,
+          0% 75%,
+          10% 50%,
+          0% 25%
+        );
+        opacity: 0.8;
+      }
+
+      .dougong-top-left {
+        top: 10px;
+        left: 10px;
+        transform: rotate(0deg);
+      }
+      .dougong-top-right {
+        top: 10px;
+        right: 10px;
+        transform: rotate(90deg);
+      }
+      .dougong-bottom-left {
+        bottom: 10px;
+        left: 10px;
+        transform: rotate(-90deg);
+      }
+      .dougong-bottom-right {
+        bottom: 10px;
+        right: 10px;
+        transform: rotate(180deg);
+      }
+
+      /* 聊天容器 - 添加窗棂背景 */
+      #chat-container {
+        position: relative;
+        background: rgba(250, 248, 243, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid #d4af37;
+        box-shadow: 0 10px 40px rgba(199, 62, 29, 0.1),
+          inset 0 1px 0 rgba(212, 175, 55, 0.3);
+      }
+
+      #chat-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: linear-gradient(
+            0deg,
+            transparent 48%,
+            rgba(212, 175, 55, 0.05) 49%,
+            rgba(212, 175, 55, 0.05) 51%,
+            transparent 52%
+          ),
+          linear-gradient(
+            90deg,
+            transparent 48%,
+            rgba(212, 175, 55, 0.05) 49%,
+            rgba(212, 175, 55, 0.05) 51%,
+            transparent 52%
+          );
+        background-size: 100px 100px;
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
+      /* 消息气泡 - 宣纸质感 */
+      .message-bubble-user {
+        background: linear-gradient(135deg, #f5f1e8 0%, #faf8f3 100%);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 20px 20px 0 20px;
+        box-shadow: 2px 2px 8px rgba(44, 44, 44, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        position: relative;
+      }
+
+      .message-bubble-user::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 3px,
+          rgba(44, 44, 44, 0.02) 3px,
+          rgba(44, 44, 44, 0.02) 6px
+        );
+        pointer-events: none;
+        border-radius: inherit;
+      }
+
+      .message-bubble-bot {
+        background: linear-gradient(
+          135deg,
+          rgba(58, 95, 205, 0.05) 0%,
+          rgba(32, 178, 170, 0.05) 100%
+        );
+        border: 2px solid rgba(58, 95, 205, 0.2);
+        border-radius: 20px 20px 20px 0;
+        box-shadow: -2px 2px 8px rgba(58, 95, 205, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        position: relative;
+      }
+
+      /* 按钮 - 朱砂红主题 */
+      .btn-vermilion {
+        background: linear-gradient(135deg, #c73e1d 0%, #e74c3c 100%);
+        color: #faf8f3;
+        border: 2px solid #a03318;
+        box-shadow: 0 4px 15px rgba(199, 62, 29, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-vermilion::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transform: rotate(45deg);
+        transition: all 0.6s;
+      }
+
+      .btn-vermilion:hover::before {
+        left: 100%;
+      }
+
+      .btn-vermilion:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(199, 62, 29, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      /* 次要按钮 - 石青色 */
+      .btn-ultramarine {
+        background: linear-gradient(135deg, #3a5fcd 0%, #4169e1 100%);
+        color: #faf8f3;
+        border: 2px solid #2e4db3;
+        box-shadow: 0 4px 15px rgba(58, 95, 205, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-ultramarine:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(58, 95, 205, 0.4);
+      }
+
+      /* 输入框 - 石质背景 */
+      .input-stone {
+        background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        border: 2px solid #d4af37;
+        color: #2c2c2c;
+        font-family: "Noto Serif SC", "宋体", serif;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+          0 2px 5px rgba(212, 175, 55, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .input-stone:focus {
+        outline: none;
+        border-color: #c73e1d;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+          0 0 0 3px rgba(199, 62, 29, 0.1), 0 4px 10px rgba(199, 62, 29, 0.2);
+      }
+
+      /* 瓦当装饰 - 列表项 */
+      .wadang-bullet::before {
+        content: "";
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: radial-gradient(
+          circle,
+          #d4af37 0%,
+          #c9a961 50%,
+          #d4af37 100%
+        );
+        border-radius: 50%;
+        margin-right: 8px;
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+      }
+
+      /* 加载动画 - 斗拱叠加 */
+      .dougong-loader {
+        position: relative;
+        width: 60px;
+        height: 60px;
+      }
+
+      .dougong-layer {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 3px solid #d4af37;
+        border-radius: 8px;
+        animation: dougongExpand 2s ease-in-out infinite;
+      }
+
+      .dougong-layer:nth-child(1) {
+        width: 20px;
+        height: 20px;
+        animation-delay: 0s;
+      }
+
+      .dougong-layer:nth-child(2) {
+        width: 35px;
+        height: 35px;
+        animation-delay: 0.3s;
+      }
+
+      .dougong-layer:nth-child(3) {
+        width: 50px;
+        height: 50px;
+        animation-delay: 0.6s;
+      }
+
+      @keyframes dougongExpand {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      /* 回纹分割线 */
+      .meander-divider {
+        height: 3px;
+        background: repeating-linear-gradient(
+          90deg,
+          #d4af37 0px,
+          #d4af37 10px,
+          transparent 10px,
+          transparent 15px,
+          #d4af37 15px,
+          #d4af37 20px,
+          transparent 20px,
+          transparent 25px
+        );
+        margin: 1.5rem 0;
+        opacity: 0.6;
+      }
+
+      /* 子按钮容器 */
+      .sub-buttons-container {
+        display: none;
+        background: rgba(250, 248, 243, 0.98);
+        border: 2px solid rgba(212, 175, 55, 0.4);
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 8px;
+        box-shadow: 0 4px 15px rgba(44, 44, 44, 0.1);
+        backdrop-filter: blur(5px);
+      }
+
+      .sub-buttons-container.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 通知 */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        color: #faf8f3;
+        font-weight: 500;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .notification.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+      }
+
+      .notification.error {
+        background: linear-gradient(135deg, #c73e1d, #e74c3c);
+      }
+
+      .notification.info {
+        background: linear-gradient(135deg, #3a5fcd, #4169e1);
+      }
+
+      /* 页脚印章效果 */
+      .seal-stamp {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #c73e1d, #a03318);
+        border: 3px solid #8b2810;
+        border-radius: 8px;
+        color: #faf8f3;
+        font-family: "Ma Shan Zheng", "KaiTi", cursive;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(199, 62, 29, 0.4),
+          inset 0 0 20px rgba(0, 0, 0, 0.2);
+        transform: rotate(-5deg);
+        line-height: 1.2;
+      }
+
+      /* 滚动条美化 */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #d4af37, #c9a961);
+        border-radius: 4px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #c9a961, #b89954);
+      }
+
+      /* 淡入动画 */
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 文件图标悬停效果 */
+      .file-icon {
+        transition: all 0.3s ease;
+        color: #d4af37;
+      }
+
+      .file-icon:hover {
+        transform: scale(1.2) rotate(5deg);
+        filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+      }
+
+      /* 响应式调整 */
+      @media (max-width: 768px) {
+        .main-title {
+          font-size: 1.8rem;
+          letter-spacing: 0.2rem;
+        }
+
+        header {
+          clip-path: none;
+          padding-bottom: 10px;
+        }
+
+        .dougong-corner {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 飞檐效果的顶部 -->
+    <header class="py-6 px-6 relative z-10">
+      <div class="container mx-auto flex items-center justify-center">
+        <h1 class="main-title">古建筑地域数据查询</h1>
+      </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main
+      class="flex-1 container mx-auto p-4 md:p-6 overflow-hidden relative z-10"
+    >
+      <!-- 对话记录区 -->
+      <div
+        id="chat-container"
+        class="rounded-xl h-[calc(100vh-200px)] md:h-[calc(100vh-220px)] flex flex-col overflow-hidden relative"
+      >
+        <!-- 斗拱装饰角 -->
+        <div class="dougong-corner dougong-top-left"></div>
+        <div class="dougong-corner dougong-top-right"></div>
+        <div class="dougong-corner dougong-bottom-left"></div>
+        <div class="dougong-corner dougong-bottom-right"></div>
+
+        <!-- 对话历史 -->
+        <div
+          id="chat-history"
+          class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 relative z-10"
+        >
+          <!-- 欢迎消息会由JavaScript动态添加 -->
+        </div>
+
+        <!-- 回纹分割线 -->
+        <div class="meander-divider"></div>
+
+        <!-- 输入区域 -->
+        <div class="p-4 md:p-6 relative z-10">
+          <form id="chat-form" class="flex flex-col md:flex-row gap-3">
+            <div class="relative flex-1">
+              <input type="text" id="user-input" class="input-stone w-full px-5
+              py-3 rounded-lg text-base"
+              placeholder="请输入省份名称，如"北京"、"山西"..."
+              autocomplete="off" >
+              <div
+                id="validation-message"
+                class="absolute -bottom-6 left-0 text-sm text-vermilion hidden"
+              ></div>
+            </div>
+            <button
+              type="submit"
+              id="send-button"
+              class="btn-vermilion px-8 py-3 rounded-lg transition-all flex items-center justify-center whitespace-nowrap font-medium text-base"
+            >
+              <i class="fas fa-search mr-2"></i>检索文献
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- 通知提示框 -->
+    <div id="notification" class="notification">
+      <span id="notification-message"></span>
+    </div>
+
+    <!-- 页脚 -->
+    <footer
+      class="bg-gradient-to-br from-ink to-gray-800 py-6 px-6 border-t-4 border-gold relative z-10"
+    >
+      <div class="meander-border py-4"></div>
+      <div class="container mx-auto text-center">
+        <div class="flex justify-center items-center mb-4">
+          <div class="seal-stamp">数据<br />之印</div>
+        </div>
+        <p class="text-riceWhite text-sm mb-2 font-serif">created by lhy666</p>
+        <p class="text-gold text-sm font-serif">
+          本项目坚持传承中国优秀传统建筑文化
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const provinces = [
+        "北京",
+        "天津",
+        "河北",
+        "山西",
+        "内蒙古",
+        "辽宁",
+        "吉林",
+        "黑龙江",
+        "上海",
+        "江苏",
+        "浙江",
+        "安徽",
+        "福建",
+        "江西",
+        "山东",
+        "河南",
+        "湖北",
+        "湖南",
+        "广东",
+        "广西",
+        "海南",
+        "重庆",
+        "四川",
+        "贵州",
+        "云南",
+        "西藏",
+        "陕西",
+        "甘肃",
+        "青海",
+        "宁夏",
+        "新疆",
+        "香港",
+        "澳门",
+        "台湾",
+      ];
+
+      const chatForm = document.getElementById("chat-form");
+      const userInput = document.getElementById("user-input");
+      const chatHistory = document.getElementById("chat-history");
+      const validationMessage = document.getElementById("validation-message");
+      const notification = document.getElementById("notification");
+      const notificationMessage = document.getElementById(
+        "notification-message"
+      );
+
+      const mockFileSystem = {
+        山西: {
+          "山西图表.jpg": { type: "图表", path: "山西/山西图表.jpg" },
+          "山西主色板.jpg": { type: "图表", path: "山西/山西主色板.jpg" },
+          "山西色彩提取.html": {
+            type: "色号列表",
+            path: "山西/山西色彩提取.html",
+          },
+          "山西色彩提取.csv": {
+            type: "Excel数据",
+            path: "山西/山西色彩提取.csv",
+          },
+        },
+        北京: {
+          "北京图表.jpg": { type: "图表", path: "北京/北京图表.jpg" },
+          "北京主色板.jpg": { type: "图表", path: "北京/北京主色板.jpg" },
+          "北京色彩提取.html": {
+            type: "色号列表",
+            path: "北京/北京色彩提取.html",
+          },
+          "北京色彩提取.csv": {
+            type: "Excel数据",
+            path: "北京/北京色彩提取.csv",
+          },
+        },
+        江苏: {
+          "江苏图表.jpg": { type: "图表", path: "江苏/江苏图表.jpg" },
+          "江苏主色板.jpg": { type: "图表", path: "江苏/江苏主色板.jpg" },
+          "江苏色彩提取.html": {
+            type: "色号列表",
+            path: "江苏/江苏色彩提取.html",
+          },
+          "江苏色彩提取.csv": {
+            type: "Excel数据",
+            path: "江苏/江苏色彩提取.csv",
+          },
+        },
+        浙江: {
+          "浙江图表.jpg": { type: "图表", path: "浙江/浙江图表.jpg" },
+          "浙江色彩提取.html": {
+            type: "色号列表",
+            path: "浙江/浙江色彩提取.html",
+          },
+          "浙江色彩提取.csv": {
+            type: "Excel数据",
+            path: "浙江/浙江色彩提取.csv",
+          },
+        },
+        陕西: {
+          "陕西主色板.jpg": { type: "图表", path: "陕西/陕西主色板.jpg" },
+          "陕西色彩提取.html": {
+            type: "色号列表",
+            path: "陕西/陕西色彩提取.html",
+          },
+        },
+      };
+
+      function showNotification(message, type = "info") {
+        notificationMessage.textContent = message;
+        notification.className = `notification ${type}`;
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 10);
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      function validateInput(input) {
+        for (const province of provinces) {
+          if (input.includes(province)) {
+            return province;
+          }
+        }
+        return null;
+      }
+
+      function addUserMessage(message) {
+        const messageElement = document.createElement("div");
+        messageElement.className = "flex justify-start fade-in";
+        messageElement.innerHTML = `
+                <div class="message-bubble-user p-5 max-w-[80%]">
+                    <p class="text-ink text-base leading-relaxed">${message}</p>
+                </div>
+            `;
+        chatHistory.appendChild(messageElement);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      function addBotMessage(message) {
+        const messageElement = document.createElement("div");
+        messageElement.className = "flex justify-end fade-in";
+        messageElement.innerHTML = message;
+        chatHistory.appendChild(messageElement);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      function showTypingIndicator() {
+        const typingElement = document.createElement("div");
+        typingElement.id = "typing-indicator";
+        typingElement.className = "flex justify-end fade-in";
+        typingElement.innerHTML = `
+                <div class="message-bubble-bot p-5 max-w-[80%]">
+                    <div class="flex items-center justify-center">
+                        <div class="dougong-loader mr-4">
+                            <div class="dougong-layer"></div>
+                            <div class="dougong-layer"></div>
+                            <div class="dougong-layer"></div>
+                        </div>
+                        <p class="text-ink">正在检索【${userInput.value.trim()}】相关文献...</p>
+                    </div>
+                </div>
+            `;
+        chatHistory.appendChild(typingElement);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      function removeTypingIndicator() {
+        const typingElement = document.getElementById("typing-indicator");
+        if (typingElement) {
+          typingElement.remove();
+        }
+      }
+
+      function searchFiles(province) {
+        try {
+          if (!mockFileSystem[province]) {
+            return {
+              found: false,
+              missing: ["图表", "色号列表", "Excel数据"],
+              files: {},
+            };
+          }
+
+          const provinceFiles = mockFileSystem[province];
+          const expectedFiles = [
+            `${province}图表.jpg`,
+            `${province}主色板.jpg`,
+            `${province}色彩提取.html`,
+            `${province}色彩提取.csv`,
+          ];
+
+          const foundFiles = {};
+          const missingFiles = [];
+
+          expectedFiles.forEach((fileName) => {
+            if (provinceFiles[fileName]) {
+              foundFiles[fileName] = provinceFiles[fileName];
+            } else {
+              missingFiles.push(fileName);
+            }
+          });
+
+          const organizedFiles = {
+            charts: [],
+            colorList: null,
+            excelData: null,
+          };
+
+          Object.keys(foundFiles).forEach((fileName) => {
+            const file = foundFiles[fileName];
+            if (fileName.endsWith(".jpg")) {
+              organizedFiles.charts.push({ name: fileName, path: file.path });
+            } else if (fileName.endsWith(".html")) {
+              organizedFiles.colorList = { name: fileName, path: file.path };
+            } else if (fileName.endsWith(".csv")) {
+              organizedFiles.excelData = { name: fileName, path: file.path };
+            }
+          });
+
+          const missingTypes = [];
+          if (missingFiles.some((f) => f.endsWith(".jpg"))) {
+            missingTypes.push("图表");
+          }
+          if (missingFiles.some((f) => f.endsWith(".html"))) {
+            missingTypes.push("色号列表");
+          }
+          if (missingFiles.some((f) => f.endsWith(".csv"))) {
+            missingTypes.push("Excel数据");
+          }
+
+          return {
+            found: Object.keys(foundFiles).length > 0,
+            missing: missingTypes,
+            files: organizedFiles,
+          };
+        } catch (error) {
+          console.error("文件检索失败:", error);
+          return {
+            found: false,
+            missing: ["图表", "色号列表", "Excel数据"],
+            files: {},
+          };
+        }
+      }
+
+      function generateBotResponse(province) {
+        const searchResult = searchFiles(province);
+
+        if (!searchResult.found) {
+          return `
+                    <div class="message-bubble-bot p-5 max-w-[80%]">
+                        <div class="flex items-center text-vermilion mb-3">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <h3 class="text-lg font-semibold">检索结果</h3>
+                        </div>
+                        <p class="text-ink leading-relaxed">未寻得【${province}】相关文献。</p>
+                        <div class="meander-divider my-4"></div>
+                        <div class="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-l-4 border-gold rounded-lg">
+                            <p class="text-sm text-ink leading-relaxed">
+                                <i class="fas fa-info-circle mr-2 text-gold"></i>
+                                <strong class="text-vermilion">建议：</strong><br>
+                                <span class="wadang-bullet"></span>确保文献置于当前页面同级目录<br>
+                                <span class="wadang-bullet"></span>文献结构应为：山西/山西图表.jpg<br>
+                                <span class="wadang-bullet"></span>推荐使用本地服务器运行（Live Server）
+                            </p>
+                        </div>
+                    </div>
+                `;
+        }
+
+        let buttonsHtml = "";
+
+        if (searchResult.files.charts && searchResult.files.charts.length > 0) {
+          buttonsHtml += `
+                    <div class="relative mb-3">
+                        <button 
+                            class="btn-vermilion py-4 px-5 rounded-lg flex items-center justify-center transition-all w-full font-medium"
+                            onclick="toggleChartSubButtons('${province}', this)"
+                        >
+                            <i class="fas fa-chart-pie mr-3"></i>
+                            可视化图表 （${searchResult.files.charts.length}份）
+                            <i class="fas fa-chevron-down ml-3 transition-transform duration-300"></i>
+                        </button>
+                        <div class="sub-buttons-container" id="chart-sub-buttons-${province.replace(
+                          /\s/g,
+                          "-"
+                        )}">
+                            ${generateChartSubButtons(
+                              province,
+                              searchResult.files.charts
+                            )}
+                        </div>
+                    </div>
+                `;
+        }
+
+        if (searchResult.files.colorList) {
+          buttonsHtml += `
+                    <button 
+                        class="btn-ultramarine py-4 px-5 rounded-lg flex items-center justify-center transition-all mb-3 w-full font-medium"
+                        onclick="openColorListFile('${province}', '${searchResult.files.colorList.path}')"
+                    >
+                        <i class="fas fa-palette mr-3"></i>
+                        色号列表
+                    </button>
+                `;
+        }
+
+        if (searchResult.files.excelData) {
+          buttonsHtml += `
+                    <button 
+                        class="bg-gradient-to-br from-jade to-teal-600 text-riceWhite py-4 px-5 rounded-lg flex items-center justify-center transition-all mb-3 w-full font-medium hover:shadow-lg hover:-translate-y-1"
+                        onclick="downloadCsvFile('${province}', '${searchResult.files.excelData.path}')"
+                    >
+                        <i class="fas fa-file-excel mr-3"></i>
+                        Excel数据
+                    </button>
+                `;
+        }
+
+        let missingFilesHtml = "";
+        if (searchResult.missing && searchResult.missing.length > 0) {
+          missingFilesHtml = `
+                    <div class="meander-divider my-4"></div>
+                    <div class="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-l-4 border-gold rounded-lg">
+                        <p class="text-sm text-ink leading-relaxed">
+                            <i class="fas fa-info-circle mr-2 text-gold"></i>
+                            以下文献尚未寻得：<span class="text-vermilion font-medium">${searchResult.missing.join(
+                              "、"
+                            )}</span>
+                        </p>
+                    </div>
+                `;
+        }
+
+        return `
+                <div class="message-bubble-bot p-5 max-w-[85%]">
+                    <div class="flex items-center text-jade mb-4">
+                        <i class="fas fa-check-circle mr-2 text-xl"></i>
+                        <h3 class="text-xl font-bold text-ink">【${province}】古建筑数据文献</h3>
+                    </div>
+                    
+                    <p class="mb-5 text-ink leading-relaxed">已寻得如下文献，请择其所需：</p>
+                    
+                    <div class="space-y-3">
+                        ${buttonsHtml}
+                    </div>
+                    
+                    ${missingFilesHtml}
+                </div>
+            `;
+      }
+
+      function generateChartSubButtons(province, charts) {
+        let subButtonsHtml = "";
+
+        const chartFile = charts.find((file) => file.name.includes("图表"));
+        const paletteFile = charts.find((file) => file.name.includes("主色板"));
+
+        if (chartFile) {
+          subButtonsHtml += `
+                    <button 
+                        class="btn-vermilion py-3 px-4 rounded-lg flex items-center justify-center transition-all mb-2 w-full"
+                        onclick="openChartFile('${chartFile.path}')"
+                    >
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        查阅图表
+                    </button>
+                `;
+        }
+
+        if (paletteFile) {
+          subButtonsHtml += `
+                    <button 
+                        class="btn-vermilion py-3 px-4 rounded-lg flex items-center justify-center transition-all w-full"
+                        onclick="openPaletteFile('${paletteFile.path}')"
+                    >
+                        <i class="fas fa-palette mr-2"></i>
+                        查阅主色板
+                    </button>
+                `;
+        }
+
+        return subButtonsHtml;
+      }
+
+      function toggleChartSubButtons(province, button) {
+        document
+          .querySelectorAll(".sub-buttons-container")
+          .forEach((container) => {
+            if (
+              container.id !==
+              `chart-sub-buttons-${province.replace(/\s/g, "-")}`
+            ) {
+              container.classList.remove("show");
+            }
+          });
+
+        document
+          .querySelectorAll(
+            ".btn-vermilion i.fa-chevron-down, .btn-ultramarine i.fa-chevron-down"
+          )
+          .forEach((arrow) => {
+            if (arrow.parentElement !== button) {
+              arrow.style.transform = "rotate(0deg)";
+            }
+          });
+
+        const subButtonsContainer = document.getElementById(
+          `chart-sub-buttons-${province.replace(/\s/g, "-")}`
+        );
+        if (subButtonsContainer) {
+          subButtonsContainer.classList.toggle("show");
+
+          const arrow = button.querySelector("i.fa-chevron-down");
+          if (arrow) {
+            arrow.style.transform = subButtonsContainer.classList.contains(
+              "show"
+            )
+              ? "rotate(180deg)"
+              : "rotate(0deg)";
+          }
+        }
+      }
+
+      function openChartFile(filePath) {
+        try {
+          window.open(filePath, "_blank");
+          showNotification("正在开启文献...", "success");
+        } catch (error) {
+          console.error("开启图表文献失败:", error);
+          showNotification("开启失败，请确认文献路径", "error");
+        }
+      }
+
+      function openPaletteFile(filePath) {
+        try {
+          window.open(filePath, "_blank");
+          showNotification("正在开启文献...", "success");
+        } catch (error) {
+          console.error("开启主色板文献失败:", error);
+          showNotification("开启失败，请确认文献路径", "error");
+        }
+      }
+
+      function openColorListFile(province, filePath) {
+        try {
+          window.open(filePath, "_blank");
+          showNotification("正在开启文献...", "success");
+        } catch (error) {
+          console.error("开启色号列表文献失败:", error);
+          showNotification("开启失败，请确认文献路径", "error");
+        }
+      }
+
+      function downloadCsvFile(province, filePath) {
+        try {
+          const link = document.createElement("a");
+          link.href = filePath;
+          link.download = filePath.split("/").pop();
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showNotification("文献下载已启动", "success");
+        } catch (error) {
+          console.error("下载文献失败:", error);
+          showNotification("下载失败，请确认文献路径", "error");
+        }
+      }
+
+      chatForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const userMessage = userInput.value.trim();
+        if (!userMessage) return;
+
+        const province = validateInput(userMessage);
+        if (!province) {
+          validationMessage.textContent = `未寻得【${userMessage}】相关数据，请尝试其他省份`;
+          validationMessage.classList.remove("hidden");
+          setTimeout(() => {
+            validationMessage.classList.add("hidden");
+          }, 3000);
+          return;
+        }
+
+        addUserMessage(userMessage);
+        userInput.value = "";
+        validationMessage.classList.add("hidden");
+        showTypingIndicator();
+
+        setTimeout(() => {
+          removeTypingIndicator();
+          const botResponse = generateBotResponse(province);
+          addBotMessage(botResponse);
+        }, 1500);
+      });
+
+      userInput.addEventListener("input", function () {
+        const input = this.value.trim();
+        if (input) {
+          const province = validateInput(input);
+          if (!province) {
+            validationMessage.textContent = `未寻得【${input}】相关数据`;
+            validationMessage.classList.remove("hidden");
+          } else {
+            validationMessage.classList.add("hidden");
+          }
+        } else {
+          validationMessage.classList.add("hidden");
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        const isClickOnSubButtons =
+          event.target.closest(".sub-buttons-container") !== null;
+        const isClickOnParentButton =
+          event.target.closest("button") !== null &&
+          event.target.closest("button").querySelector("i.fa-chevron-down") !==
+            null;
+
+        if (!isClickOnSubButtons && !isClickOnParentButton) {
+          document
+            .querySelectorAll(".sub-buttons-container")
+            .forEach((container) => {
+              container.classList.remove("show");
+            });
+
+          document.querySelectorAll("i.fa-chevron-down").forEach((arrow) => {
+            arrow.style.transform = "rotate(0deg)";
+          });
+        }
+      });
+
+      // 页面加载时显示欢迎消息
+      window.addEventListener("load", function () {
+        const welcomeMessage = `
+                <div class="message-bubble-bot p-5 max-w-[80%]">
+                    <p class="text-ink text-base leading-relaxed">
+                        您好！吾乃古建筑地域数据查询助手。<br>
+                        请输入省份名称，如<span class="wadang-bullet"></span>"北京"、<span class="wadang-bullet"></span>"江苏"，<br>
+                        吾将为您检索相关数据文献。
+                    </p>
+                </div>
+            `;
+        const welcomeElement = document.createElement("div");
+        welcomeElement.className = "flex justify-end fade-in";
+        welcomeElement.innerHTML = welcomeMessage;
+        chatHistory.appendChild(welcomeElement);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      });
+    </script>
+  </body>
+</html>
